@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: EaPMEHuawU+cCd/6eGt+ti9a7PlFHX8dGZEcpUcztE+jyySl67Y4432MRHu5OVnj20/a1v88CuWE8P7taxZRvD6L9HCCwRkqJz3zJGIuErLLOR8hPvRatQhP/7AoNVzK4VcR2hrNf5baSSWhB4syQDG75fDQI5loEy6LvXneQofyrze1SlGlCQn+Gio6CH7KRohCPtXG5eVhcQ44wx/1Z3KnO+JZVgtll6vw5SXZCnRl947sMIF01fIuf9WsBpisfZL5XFE3n4MSRPfzVg6OaEgcs7k/paxXVVIsEguPtW2Y3SxQ4VRLFJBtif39POWbeHzCNIl+YOMdEuYT/hUfC5chHX9bKqZD+DL5EvOzUjCi/AQl2AaifTI7zxVgyHoQKoiNwI62iYLJMKoFvYdL5IeGNGN34M5rOOxQ/snU54VJUFkKAmmrAYOsq4/uf/VzrgZrx7fLq38GvvaoyyFEnJO/GOSSqBrDQgxWilZ6ZbZ8kNp2XMWej8/7XPInlDyOUzjAtffWIHWwve8ABOCX66SfWW0s+KsF8t4g4sP4yugnY3+E4z0WT8Z/z07yb5mROuJjxFPANTAW9VqdajqUfElm5y8sWwB2FBpNLyNA6QaAwQ3lByz3IN/Hec+GhJ5zK+uA+yXhc8+6Qaxa0HCvjRqT1C/KBZkaiaQoZirDCfI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Guns-of-Shiloh--A-Story-of-the-Great-Western-Campaign_5207
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
